@@ -1,0 +1,49 @@
+id = "mekmm"
+kind = "native-mod"
+name = "mekmm"
+summary = "A Horizon port of mekmm."
+description = """
+A port of [mekmm](lostmyself8/Mekanism-MoreMachine) for Horizon.
+
+**Implemented so far**
+
+- | | Upstream | This port |
+- |---|---|---|
+- | machine | `TileEntityRecyclingFactory` on `TileEntityMoreMachineFactory` (Mekanism `FactoryTier.BASIC`) | the same shape in `runtime::factory_tick` |
+- | processes | **3** (`FactoryTier.BASIC.processes`) | `BASIC_PROCESSES = 3`, three independent progress counters |
+- | ticks per operation | **200** (`BASE_TICKS_REQUIRED = 10 * 20`) | `RECYCLER_TICKS = 200` |
+- | energy | **50 FE/t per process** (`UsageConfig.recycler`) | `RECYCLER_USAGE = 50`, spent per process per tick |
+- | buffer | **20,000 FE**, shared by the three processes (`StorageConfig.recycler`) | `RECYCLER_CAPACITY = 20_000` via `native_block_entity_energy` |
+- | energy per operation | 10,000 FE (200 × 50), pinned by the e2e | same |
+
+**Not yet ported**
+
+- The rest of the mod.** The other 15 factory families (144 factory
+- blockstates), the eight higher tiers of this one (advanced/elite/ultimate and
+- the overclocked/quantum/dense/multiversal/creative extras), the chemical
+- tanks (`mid`/`max`), every single machine (`recycler`, `planting_station`,
+- `presser`, `cnc_lathe`, `cnc_rolling_mill`, `cnc_stamper`, `replicator`,
+- `fluid_replicator`, `chemical_replicator`), the `large_*` multiblocks, the
+- silver ore/block/item set, the `scrap_box`/`uu_matter`/crystals and the
+- compat recipes are **not ported**.
+
+Original copyright and licence notices are kept in this repository. Pinned to
+Horizon 1d63e0a and horizon-mixins 5a64af93. Help with the remaining slices is
+welcome.
+"""
+authors = ["AdLf0208"]
+owners = ["AdLf0208"]
+owner_ids = [107615167]
+license = "MIT"
+source = "https://github.com/AdLf0208/mekmm"
+icon = "icons/mekmm.png"
+categories = ["utility"]
+tags = ["port", "horizon"]
+
+[[versions]]
+version = "0.1.0"
+published = "2026-11-10"
+game = "26.3"
+file = "mekmm.hnmod"
+sha256 = "31b43c0b984a8e2e40a0c75a51702b1b08121437c8e4cafaa189499399418abf"
+changelog = "First release"

@@ -1,0 +1,17 @@
+[package]
+# Ported from: Mekanism: MoreMachine (mekmm) 1.4.2 (lostmyself8/Mekanism-MoreMachine,
+# MIT), Minecraft Java 1.21.1 NeoForge, an add-on of Mekanism. Local-only until
+# the maintainer approves publishing (ARCHITECTURE.md §8).
+name = "horizon-mekmm"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+license = "MIT"
+description = "Mekanism: MoreMachine for Horizon: the Basic Recycling Factory"
+
+[lib]
+# This exact source is also injected as a same-crate module by horizon-mixins.
+path = "mixins/mekmm/runtime.rs"
+
+[workspace]
+resolver = "2"

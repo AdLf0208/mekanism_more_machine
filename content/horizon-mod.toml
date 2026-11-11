@@ -1,0 +1,13 @@
+# Port-owned content mod for the mekmm slice 1 (the Basic Recycling Factory and
+# its scrap). The blockstate, the models, the five recycling-factory textures,
+# the scrap item texture, the loot table, the mineable tag entry and the English
+# names are carried from Mekanism: MoreMachine 1.4.2
+# (lostmyself8/Mekanism-MoreMachine, MIT); the composite/Blockbench model is
+# replaced by a plain cube over the same face textures, which Horizon's resource
+# loader can draw. The Rust is a clean-room rewrite.
+id = "mekmm"
+name = "Mekanism: MoreMachine"
+version = "0.1.0"
+api = "0.2"
+side = "both"
+capabilities = ["registries"]

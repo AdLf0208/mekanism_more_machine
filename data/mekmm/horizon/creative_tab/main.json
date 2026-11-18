@@ -1,0 +1,8 @@
+{
+  "title": "Mekanism: More Machine",
+  "icon": "mekmm:basic_recycling_factory",
+  "items": [
+    "mekmm:basic_recycling_factory",
+    "mekmm:scrap"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "mekmm:block/factory/recycling/recycling_factory_front",
+    "down": "mekmm:block/factory/recycling/recycling_factory_bottom",
+    "up": "mekmm:block/factory/recycling/recycling_factory_top",
+    "north": "mekmm:block/factory/recycling/recycling_factory_front",
+    "south": "mekmm:block/factory/recycling/recycling_factory_back",
+    "west": "mekmm:block/factory/recycling/recycling_factory_side",
+    "east": "mekmm:block/factory/recycling/recycling_factory_side"
+  }
+}

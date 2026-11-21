@@ -7,10 +7,10 @@
 #
 # Cargo's name and version are not the mod's identity: horizon-mod.toml is.
 name = "mekmm"
-version = "0.2.0"
+version = "0.2.2"
 edition = "2024"
 license = "MIT"
-description = "Mekanism: MoreMachine for Horizon, slice 1: the Basic Recycling Factory"
+description = "Mekanism: MoreMachine for Horizon: the recycling factory's four real tiers"
 publish = false
 
 [dependencies]

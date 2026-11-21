@@ -1,4 +1,4 @@
-# mekmm (Mekanism: MoreMachine) → Horizon, slice 1: the Basic Recycling Factory
+# mekmm (Mekanism: MoreMachine) → Horizon — the recycling factory's four tiers
 
 Ported from **Mekanism: MoreMachine 1.4.2** (`lostmyself8/Mekanism-MoreMachine`,
 **MIT**), the exact ATM10 jar `mekmm-1.21.1-1.4.2.jar`
@@ -11,18 +11,17 @@ no jar decompiled. `FINDINGS.md` records the files read and every number.
 **LOCAL-ONLY** until the maintainer approves publishing (ARCHITECTURE.md §8).
 MIT is licence rank 0 (permissive); the approval is still required.
 
-Status: **version 0.2.0 — migrated to the flat SDK package** (mod API 0.2, one
-`.hmod`, 2026-11-18; [`## Migration to the SDK format`](#migration-to-the-sdk-format-version-020-2026-11-18)
-below). The behaviour is unchanged and still **slice 1, one factory at one tier**:
-`mekmm:basic_recycling_factory`, the basic tier of the recycling family (3
-parallel processes, 200 ticks per operation, 50 FE/t per process, one shared
-20,000 FE buffer, one input and one output slot per process, `mekmm:scrap` on a
-17 % chance roll), plus its item, menu and persistence. Everything else in the
-mod is a planned gap (below). The in-game run quoted further down is the **0.1.0**
-bundle's, kept as history; **no 0.2.0 in-game run exists** — `horizon-launcher` is
-not installed here (gap 1 of the migration section).
+Status: **version 0.2.2 — the recycling family at its four real tiers** (2026-11-21, pin
+`0a875da`): `mekmm:{basic,advanced,elite,ultimate}_recycling_factory` — 3/5/7/9 parallel
+processes, 200 ticks per operation, 50 FE/t per process, one shared buffer of
+30,000/50,000/70,000/90,000 FE, one input and one output slot per process, `mekmm:scrap` on a
+17 % chance roll, plus the item, the per-tier container and persistence. The slice is written
+up under [`## Slice 2`](#slice-2--the-factorys-four-real-tiers-version-022-2026-11-21) below;
+everything else in the mod is a planned gap (the list follows). The in-game leg is measured at
+this version (`ports/_shared/evidence/mekmm-e2e/`): PASS + `EXIT:0`, control `EXIT:1`,
+`SELFTEST=1` `EXIT:1`.
 
-Skills: superpowers/using-superpowers,brainstorming,writing-plans,test-driven-development,verification-before-completion; BeautifulRust/rust-best-practices,rust-port
+Skills: superpowers/using-superpowers,brainstorming,writing-plans,test-driven-development,systematic-debugging,verification-before-completion; BeautifulRust/rust-best-practices,rust-port
 
 ## Class + tier, approach, licence
 
@@ -58,7 +57,13 @@ one machine whose behaviour is faithful without the parent's chemistry. The
 artefact beat the brief's example; that is recorded here rather than silently
 swapped.
 
-## Behaviour (slice 1)
+## Behaviour (slice 1 — the basic tier as 0.1.0–0.2.1 shipped it)
+
+*The 20,000 FE buffer row below is **superseded**: the same jar's factory builder gives the
+basic tier 30,000 FE, and slice 2 corrected it (see
+[`## Slice 2`](#slice-2--the-factorys-four-real-tiers-version-022-2026-11-21) → "The numbers,
+and the defect this slice fixes"). The rest of the table still describes the port. Every
+"20,000" in this historical table is the **single machine's** `StorageConfig.recycler`.*
 
 | | Upstream | This port |
 |---|---|---|
@@ -152,13 +157,17 @@ works without them.
 ## Gaps
 
 - **The rest of the mod.** The other 15 factory families (144 factory
-  blockstates), the eight higher tiers of this one (advanced/elite/ultimate and
-  the overclocked/quantum/dense/multiversal/creative extras), the chemical
-  tanks (`mid`/`max`), every single machine (`recycler`, `planting_station`,
-  `presser`, `cnc_lathe`, `cnc_rolling_mill`, `cnc_stamper`, `replicator`,
-  `fluid_replicator`, `chemical_replicator`), the `large_*` multiblocks, the
-  silver ore/block/item set, the `scrap_box`/`uu_matter`/crystals and the
-  compat recipes are **not ported**.
+  blockstates), the chemical tanks (`mid`/`max`), every single machine
+  (`recycler`, `planting_station`, `presser`, `cnc_lathe`, `cnc_rolling_mill`,
+  `cnc_stamper`, `replicator`, `fluid_replicator`, `chemical_replicator`), the
+  `large_*` multiblocks, the silver ore/block/item set, the
+  `scrap_box`/`uu_matter`/crystals and the compat recipes are **not ported**.
+- **The five Evolved Mekanism tiers** (`overclocked`, `quantum`, `dense`,
+  `multiversal`, `creative`) are `blocked(evolvedmekanism-not-ported)`:
+  `MoreMachineUtils.getFactoryTier()` registers only Mekanism's four
+  (`EnumUtils.FACTORY_TIERS`) and appends `MoreMachineEnumUtils.EM_TIERS` only when
+  `evolvedmekanism` is loaded (`MoreMachineEnumUtils.java:50-56`). Their
+  blockstates and models are in the jar; the tier type they extend is not.
 - **The chemical system** (Mekanism gases/slurries/pigments) is the parent's
   deep tier; without it, the families that need it cannot be faithful.
 - **The recycler itself** (`mekmm:recycler`, the single-machine form of this
@@ -555,7 +564,9 @@ files, 5 data files, `src/lib.rs`, `src/basic_recycling_factory.rs`, `src/runtim
 
 ### Gaps after the migration
 
-1. **No in-game run at 0.2.0.** `horizon-launcher` is not installed in this environment, so a
+1. ~~**No in-game run at 0.2.0.**~~ **Closed:** 0.2.1 ran the leg
+   (`ports/_shared/evidence/mekmm-e2e/`) and 0.2.2 re-ran it on four tiers. The text below is
+   the state at 0.2.0. `horizon-launcher` is not installed in this environment, so a
    game carrying this package cannot be built (an SDK package is compiled **into** the client by
    the launcher; there is no staging path for it). `tools/e2e.sh` was rewritten for
    `GAME=<launcher-built client>` + optional `CONTROL_GAME=` and was **not run**. The 0.1.0
@@ -608,3 +619,285 @@ adds the `[[versions]]` record and links the file, and a **maintainer** runs `sc
 `python3 ports/tools/publish-ready.py mekmm` does the bookkeeping; this port's half is the
 package and this record. The port stays **local-only until the maintainer approves publishing**
 (rank-0 MIT still needs the approval).
+
+## Review fixes (2026-11-18)
+
+`var/review-all/1219-mekmm.md`, both findings fixed; version **0.2.1** (34,306 B, sha256
+`b72a04acdb28029962bc23a0aaae14df2a93fa505ec54ab17886ac94610c1e42`).
+
+- **Info disclosure (src/lib.rs:56, :383).** `/mekmm info` read input/output item ids and counts
+  from any loaded factory at caller-supplied coordinates. It now needs an operator (permission
+  ≥ 2) or a player in the same level within 8 blocks; any other caller gets a generic refusal.
+  Rule: `runtime::may_inspect`, pinned by `a_readout_needs_an_operator_reach_or_the_same_level`.
+- **Output rewrite on every changed tick (src/basic_recycling_factory.rs:346, :252).** The tick
+  wrote every output slot, and `write_output` replaced an occupied non-scrap stack with scrap of
+  the same count even when the recipe had rejected it. Now only a slot whose `Stack` actually
+  changed is written (`runtime::output_changed`, pinned by
+  `an_untouched_output_slot_is_not_rewritten`), and `write_output` never overwrites a stack of a
+  different item: it only updates/clears this mod's result item.
+
+### In-game harness corrections (documented, not a weakening)
+
+- `info_once` grepped `"$BLOCK: "` while every answer reads `"$BLOCK at x,y,z: "`, so it never
+  matched; the pattern now accepts the space after the id.
+- The scenario stood 8.8 blocks from the first factory, outside the new read gate; it now stands
+  at 12.5,64,4.5 among the three.
+- Under `--headless` a mod container screen opens but `ctl screen`/`close`/`quit` never answer
+  while it is open (no screen tick). The menu assertion now reads the screen from the `ctl
+  interact` reply (`.screen == "container"`), runs last, and `cleanup` ends the captured game pid.
+  The nine slots/3x3 menu stay pinned by the `container()` unit test; all item movement is still
+  exercised in-game through the same slots by `item replace block … container.N`.
+- `runtime.rs` gained the reach and output-change rules and their tests (27 tests); it is no
+  longer byte-identical to the retired bundle.
+
+Ladder: `cargo test` 27 passed; `cargo clippy --all-targets -- -D warnings` exit 0;
+`cargo fmt --check` clean; `cargo horizon-mod build` twice byte-identical; `check` and `fits`
+exit 0. In-game: `launcher-game.sh run mekmm` → `PASS` + `EXIT:0`
+(`ports/_shared/evidence/mekmm-e2e/e2e-launcher.log`); `GAME=$CONTROL_GAME` → `FAIL`
+(`mekmm info … Unknown command`) + `EXIT:1`.
+
+## Slice 2 — the factory's four real tiers (version 0.2.2, 2026-11-21)
+
+Pin **`0a875da91dbb0fdcb7ba8c42c11341aa229af51a`** + horizon-mixins
+**`e59da9094f0c2fdda6c627fe9eff22dec6a906f0`** (Nightly 2026-11-20). The SDK in
+`.horizon/sdk` was refreshed to this pin (deleted and re-fetched: a repin does not
+refresh a cached SDK), and the package rebuilt from it.
+
+### The family, and the gap line it comes from
+
+`## Gaps` said: *"The other 15 factory families (144 factory blockstates), **the
+eight higher tiers of this one** (advanced/elite/ultimate and the
+overclocked/quantum/dense/multiversal/creative extras), … are **not ported**."*
+
+This slice is that family: **the recycling factory at every tier the jar
+registers without another mod**. The "eight" in that line was an inventory count;
+the registrable set is **three** higher tiers, measured:
+
+| evidence | what it says |
+|---|---|
+| `MoreMachineUtils.getFactoryTier()` | returns `EnumUtils.FACTORY_TIERS` **unless** `Mekmm.hooks.evolvedMekanism.isLoaded()`, in which case it appends `MoreMachineEnumUtils.EM_TIERS` |
+| `MoreMachineEnumUtils.java:50-56` | `EM_TIERS = { EMFactoryTier.OVERCLOCKED, QUANTUM, DENSE, MULTIVERSAL, CREATIVE }`, only inside `if (Mekanism.hooks.evolvedMekanism.isLoaded())` |
+| Mekanism `common/tier/FactoryTier.java` | `BASIC(3), ADVANCED(5), ELITE(7), ULTIMATE(9)`; `EnumUtils.FACTORY_TIERS = FactoryTier.values()` |
+
+Evolved Mekanism is not in the registry, so the five extra tiers are
+`blocked(evolvedmekanism-not-ported)` rather than ported against a type this pin does
+not have. It fits the **machines** tier: four block entities with their own process
+count, buffer and container, and no renderer, entity or dimension.
+
+### The numbers, and the defect this slice fixes
+
+| value | source | this port |
+|---|---|---|
+| processes | Mekanism `FactoryTier.processes` | 3 / 5 / 7 / 9 |
+| ticks per operation | `TileEntityMoreMachineFactory.BASE_TICKS_REQUIRED` = `10 * TICKS_PER_SECOND` | 200 for every tier |
+| energy per process per tick | `MoreMachineUsageConfig.recycler` = 50 | 50 |
+| the single machine's storage | `MoreMachineStorageConfig.recycler` = 20,000 | `MACHINE_STORAGE` |
+| **the factory's buffer** | `MoreMachineFactory.setMachineData`: `clamp(max(origEnergy.getConfigStorage() * 0.5, origEnergy.getUsage()) * tier.processes)` | `factory_capacity` → **30,000 / 50,000 / 70,000 / 90,000** |
+
+**Port defect fixed (0.2.1 → 0.2.2):** slice 1 shipped the **basic** factory with a
+**20,000 FE** buffer — the *single machine's* `StorageConfig.recycler` — while the same
+jar's factory builder computes `max(20,000 × 0.5, 50) × 3 = 30,000`. The tier formula
+cannot be implemented for advanced/elite/ultimate while leaving basic at a value the
+formula contradicts, so basic is corrected to **30,000** here. A player notices a basic
+factory that can hold one and a half operations instead of one, and every tier now reads
+its own buffer in `/mekmm info` (30,000/50,000/70,000/90,000). Pinned by
+`the_factory_buffer_is_half_the_machine_storage_times_its_processes`.
+
+### Red → green (TDD)
+
+Two fail-capable red runs before any of the family's rules existed, both kept verbatim
+in `ports/_shared/evidence/mekmm/`:
+
+1. `sdk-tier-red.log` — the tier rules as failing tests (`todo!()`/`panic!` skeletons,
+   the crate compiling):
+   ```
+   thread 'runtime::tests::the_four_tiers_are_the_jars_process_counts' panicked at src/runtime.rs:75:9:
+   the tier's process count
+   thread 'runtime::tests::five_processes_stall_after_forty_ticks_on_ten_thousand_fe' panicked at src/runtime.rs:180:9:
+   not yet implemented: a factory of a tier
+   test result: FAILED. 11 passed; 24 failed; 0 ignored; 0 measured; 0 filtered out
+   ```
+2. `sdk-tier-glue-red.log` — the per-tier *declarations* as failing tests (`container`,
+   `battery` and `read` stubbed):
+   ```
+   thread 'recycling_factory::tests::every_tier_opens_the_smallest_vanilla_grid_that_holds_its_slots' panicked at src/recycling_factory.rs:87:5:
+   not yet implemented: a tier's container
+   thread 'recycling_factory::tests::every_tier_declares_its_own_input_only_buffer' panicked at src/recycling_factory.rs:93:5:
+   not yet implemented: a tier's buffer
+   test result: FAILED. 31 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out
+   ```
+
+Green: **35 tests** (19 from 0.1.0's runtime + 6 glue + 10 new), `clippy --all-targets -- -D
+warnings` 0 warnings, `cargo fmt --check` clean.
+
+The new rules the tests pin:
+
+- `the_four_tiers_are_the_jars_process_counts` — processes, ids, block ids, display names;
+- `the_factory_buffer_is_half_the_machine_storage_times_its_processes` — the formula,
+  including the usage floor (`factory_capacity(40, 50, 3) == 150`) and the four buffers;
+- `every_tier_block_id_resolves_back_to_its_tier` — `Tier::from_block`, and five non-factory
+  ids answered `None`;
+- `five_processes_stall_after_forty_ticks_on_ten_thousand_fe`,
+  `seven_processes_stall_after_twenty_eight_ticks_on_ten_thousand_fe`,
+  `nine_processes_stall_after_twenty_two_ticks_on_ten_thousand_fe` — the exact stall each
+  tier reaches on 10,000 FE (`[40×5]`, `[29,29,29,29,28,28,28]`, `[23,23,22×7]`);
+- `a_higher_tier_finishes_on_exactly_the_energy_it_has_left` — the remaining ticks cost
+  exactly 40,000 / 60,000 / 80,000 FE and every process produces one scrap;
+- `a_tier_s_factory_runs_exactly_its_process_count`, `saved_arrays_are_padded_and_clamped_per_tier`;
+- `every_tier_opens_the_smallest_vanilla_grid_that_holds_its_slots` (the container/menu),
+  `every_tier_declares_its_own_input_only_buffer`, `a_fresh_compound_is_an_empty_factory_of_its_tier`,
+  `the_tick_s_state_reads_back_from_the_compound_it_wrote` (advanced: five progress slots),
+  `the_info_line_names_the_tier_and_its_own_buffer` (basic 30,000 and ultimate 90,000 lines).
+
+### The in-game leg (measured this version)
+
+`ports/_shared/evidence/mekmm-e2e/` — `e2e-launcher.log` (**PASS** + `EXIT:0`),
+`e2e-launcher-control.log` (`FAIL` + `EXIT:1`), `e2e-launcher-selftest.log` (`FAIL` +
+`EXIT:1`), `native-build.log` (`Compiling mekmm (1 of 1)` — the manifest changed, so trap 15
+of the wave's list cannot apply), `check-e2e-logs.py mekmm-e2e --strict` → **logs=3 ok=3**.
+The leg runs `--offscreen` (a menu assertion needs the client's screen tick; `--headless`
+hangs `ctl screen`).
+
+Quoted from `e2e-launcher.log`:
+
+```
+== the factories place and their block entities answer ==
+  info(20,64,8): mekmm:advanced_recycling_factory at 20,64,8: 0/50000 FE, progress [0, 0, 0, 0, 0]/200, cycles [0, 0, 0, 0, 0], in [empty, empty, empty, empty, empty], out [empty, empty, empty, empty, empty]
+  info(24,64,8): mekmm:elite_recycling_factory at 24,64,8: 0/70000 FE, progress [0, 0, 0, 0, 0, 0, 0]/200, cycles [0, 0, 0, 0, 0, 0, 0], in [empty, empty, empty, empty, empty, empty, empty], out [empty, empty, empty, empty, empty, empty, empty]
+  info(28,64,8): mekmm:ultimate_recycling_factory at 28,64,8: 0/90000 FE, progress [0, 0, 0, 0, 0, 0, 0, 0, 0]/200, cycles [0, 0, 0, 0, 0, 0, 0, 0, 0], in [empty, empty, empty, empty, empty, empty, empty, empty, empty], out [empty, empty, empty, empty, empty, empty, empty, empty, empty]
+== the higher tiers stall at their own tick pattern on 10,000 FE ==
+  info(20,64,8): mekmm:advanced_recycling_factory at 20,64,8: 0/50000 FE, progress [40, 40, 40, 40, 40]/200, cycles [0, 0, 0, 0, 0], in [minecraft:stone x1, minecraft:stone x1, minecraft:stone x1, minecraft:stone x1, minecraft:stone x1], out [empty, empty, empty, empty, empty]
+  info(24,64,8): mekmm:elite_recycling_factory at 24,64,8: 0/70000 FE, progress [29, 29, 29, 29, 28, 28, 28]/200, cycles [0, 0, 0, 0, 0, 0, 0]
+  info(28,64,8): mekmm:ultimate_recycling_factory at 28,64,8: 0/90000 FE, progress [23, 23, 22, 22, 22, 22, 22, 22, 22]/200, cycles [0, 0, 0, 0, 0, 0, 0, 0, 0]
+== each tier finishes every process on exactly the energy it has left ==
+  info(20,64,8): mekmm:advanced_recycling_factory at 20,64,8: 0/50000 FE, progress [0, 0, 0, 0, 0]/200, cycles [1, 1, 1, 1, 1], in [empty, empty, empty, empty, empty], out [mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1]
+  info(24,64,8): mekmm:elite_recycling_factory at 24,64,8: 0/70000 FE, progress [0, 0, 0, 0, 0, 0, 0]/200, cycles [1, 1, 1, 1, 1, 1, 1], in [empty, empty, empty, empty, empty, empty, empty], out [mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1]
+  info(28,64,8): mekmm:ultimate_recycling_factory at 28,64,8: 0/90000 FE, progress [0, 0, 0, 0, 0, 0, 0, 0, 0]/200, cycles [1, 1, 1, 1, 1, 1, 1, 1, 1], in [empty, empty, empty, empty, empty, empty, empty, empty, empty], out [mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1, mekmm:scrap x1]
+== each tier opens its own grid: 9, 18, 18 and 27 slots ==
+  mekmm:basic_recycling_factory menu slots: 9 (expected 9)
+  mekmm:advanced_recycling_factory menu slots: 18 (expected 18)
+  mekmm:elite_recycling_factory menu slots: 18 (expected 18)
+  mekmm:ultimate_recycling_factory menu slots: 27 (expected 27)
+== the carried loot table and tag: a broken factory drops itself ==
+  stone block drop count: 1 (the differential: vanilla's own loot)
+  factory drop: {"mekmm:ultimate_recycling_factory":1}
+```
+
+What the numbers prove:
+
+- **the process count is real**: 10,000 FE at 50 FE/t per process buys 40 ticks with five
+  processes, 28 with seven and 22 with nine, and the leftover 200/100 FE advances exactly
+  four/two processes one more tick. A machine with the wrong count or a shared 50 FE/t
+  cannot print those arrays;
+- **the buffer is per tier**: each top-up is exactly the stalled processes' remaining ticks
+  (`800/1,200/1,600 × 50 = 40,000/60,000/80,000`), and every buffer ends at **0** with one
+  scrap per process — an over- or under-sized buffer leaves a remainder or blocks a finish;
+- **the containers are real**: the four grids open with 9, 18, 18 and 27 slots, which is the
+  declared slot count of each tier (a container whose `slots` did not equal the menu's is
+  filtered out by the pin, so a wrong declaration opens nothing);
+- the basic tier's own controls (no energy, no recipe, full output, missed roll, 67/67/66
+  sharing) and the save/relaunch round trip still hold at 30,000 FE;
+- **the carried loot table and tag are real**: broken with an iron pickaxe in survival, an
+  ultimate factory drops `mekmm:ultimate_recycling_factory` ×1 (its 26.3 singular-condition
+  self-drop, with `requires_tool` satisfied by the carried `mineable/pickaxe` entry), and the
+  same break on a stone block drops 1 as the differential — a break that cannot read drops
+  fails before the factory is even touched.
+
+The control leg is a real differential: both `mekmm:basic_recycling_factory` and
+`mekmm:advanced_recycling_factory` place as **air** in the same Nightly without the package
+and `/mekmm` does not answer; the `CONTROL=0 GAME=$CONTROL_GAME` run of the whole scenario
+fails at the first assertion (`FAIL: expected /mekmm info at 8,64,8 … got ''`, `EXIT:1`).
+`SELFTEST=1` flips the first operation's output assertion and fails with the machine's own
+line (`… out [mekmm:scrap x1, empty, empty]`, `EXIT:1`).
+
+### Two in-game findings the code review could not see
+
+1. **The tier roll is the real 17 %.** The first tier run showed `cycles [1, 1, 1, 1, 1]`
+   with `out [scrap, empty, empty, empty, scrap]` — the port is right, the *scenario* was
+   wrong: the chance override is per block entity and had been pinned only on the basic
+   factory. The leg now pins `mekmm chance 1` on each tier before its completion phase, and
+   the miss path stays proven on the basic tier's control 2.
+2. **A command pair is a race, not an atomic step.** `put <stone>` followed by
+   `mekmm energy 30000` let one tick run at the *old* buffer, so the operation completed
+   after 199 spending ticks and the buffer read `20,050/30,000`. The leg now empties the
+   buffer before the input goes in (and then sets the target), which is the same trick the
+   three-process phase already used; the energy assertions are about the machine again.
+
+### Deviations added by this slice
+
+8. **One container grid per tier, not upstream's layout.** A mod container's menu must show
+   exactly its slot count, and the pin's vanilla grids are 9/18/27 slots, so each tier opens
+   the smallest that holds its `2 × processes` working slots plus upstream's energy slot:
+   `generic_3x3` (9), `generic_9x2` (18, 18) and `generic_9x3` (27). The spare cells after
+   the energy slot are empty. Upstream draws its own 2n+1 screen; that GUI is still a gap.
+9. **The tier LED is drawn, not composed.** Upstream's factory model is a
+   `neoforge:composite` of the mod's cube and `mekanism:block/factory/front_led/<tier>`,
+   which Horizon's model loader does not have. The four fronts are the mod's own
+   `recycling_factory_front.png` with the tier's LED row baked in at the top-centre of the
+   face, using Mekanism's own palette (`factory/led.png` rows 0-3, exact RGB);
+   `tools/gen_fronts.py` is the generator and the record.Without the parent mod installed,
+   the composite could not resolve its textures anyway.
+
+### Coverage (every family the jar ships)
+
+| family | state |
+|---|---|
+| recycling factory, basic tier (3 processes, 30,000 FE) | **tested** — phases "the factories place…", "one powered process…", "three processes share…", "the three operations finish…", control 1–4, persistence |
+| recycling factory, advanced tier (5 processes, 50,000 FE) | **tested** — "the higher tiers stall…", "each tier finishes…", "each tier opens its own grid" (18 slots) |
+| recycling factory, elite tier (7 processes, 70,000 FE) | **tested** — same phases (18 slots) |
+| recycling factory, ultimate tier (9 processes, 90,000 FE) | **tested** — same phases (27 slots) |
+| recycling recipe table (`mekmm:recycler`: `c:stones`, dirt, grass_block → scrap 17 %) | **tested** — control 1–4 and the unit table test (the `mekanism:substrate` row is not ported: no such item here) |
+| `mekmm:scrap` item | **tested** — produced, counted and read back in every phase |
+| the factory blocks' loot tables and the `mineable/pickaxe` tag | **tested** — "the carried loot table and tag": a survival break with an iron pickaxe drops the block, with a stone break as the differential |
+| the four tier front textures (the baked LED) | **tested** — the block models are loaded by the client at launch (`block sprites: 1309 layers`); the LED strip itself is verified by `tools/gen_fronts.py`'s palette read, not by a screenshot |
+| the other 15 factory families | **not ported** — 13 need Mekanism chemicals (slurries/pigments/`nutrient_solution`), and `lathing`/`rolling_mill`/`stamping`/`pressing` ship only `neoforge:mod_loaded` `compat/` recipes, so they would be machines that can never run |
+| `overclocked`/`quantum`/`dense`/`multiversal`/`creative` tiers | **blocked(evolvedmekanism-not-ported)** — `MoreMachineEnumUtils.EM_TIERS` exists only when Evolved Mekanism is loaded |
+| chemical tanks (`mid`/`max`) | **not ported** — the parent's chemical system |
+| single machines (`recycler`, `planting_station`, `presser`, cnc trio, three replicators) | **not ported** |
+| `large_*` multiblocks | **not ported** |
+| silver ore/block/item, `scrap_box`, `uu_matter`, crystals | **not ported** |
+| side configuration, upgrades, ejector, redstone control, `active` state, the factory's own GUI | **not ported** (deviations 3–6, 8) |
+
+### Ladder at 0.2.2 (evidence in `ports/_shared/evidence/mekmm/`)
+
+| Step | Result | Evidence |
+|---|---|---|
+| tier rules (RED) | **24 failed** of 35 | `sdk-tier-red.log` |
+| tier declarations (RED) | **4 failed** of 35 | `sdk-tier-glue-red.log` |
+| tests | **35 passed**, 0 failed | `sdk-test.log` |
+| clippy | exit 0, **0 warnings** | `sdk-clippy.log` |
+| fmt | clean | `sdk-fmt.log` |
+| build ×2 | **byte-identical**, `cmp` exit 0, 44,260 B | `sdk-build.log`, `sdk-build-second.log` |
+| check | exit 0, `mekmm 0.2.2 (native-mod, format native-1/0a875da/…, for 26.3)`, 44,260 B, SHA-256 `086d1d51…bf1f` | `sdk-check.log` |
+| fits (the pin) | `0a875da  made for`, exit 0 | `sdk-fits.log` |
+| **fits (a different build)** | `0b14f8a  fits`, exit 0 | `sdk-fits-other.log` |
+| archive | 43 entries, no `Cargo.lock` | `sdk-entries.txt` |
+| surface | 261 entries (125 type, 59 handle, 26 method, 21 hook, 22 trait, 5 part, 2 macro, 1 capability); no local `ItemCount`/`RecycleRecipe` recorded against an SDK id | `sdk-uses.json`, `sdk-uses-summary.log` |
+| package gate | **1/1** | `verify-sdk-package.py mekmm` |
+
+**Deliverable:** `mekmm.hmod`, **44,260 B**, SHA-256
+`086d1d51d7da4bda8f20fe69a0ca92f94b319f57b35f7d9ab6eb7eefbdb0bf1f`, **43 entries**, built
+twice byte-identically from a `rm -f Cargo.lock` tree against SDK `0a875da` / mixins
+`e59da90`.
+
+### A `fits` false positive this slice removed
+
+0.2.1's pure core named its types `Stack` and `Recipe`, which the usage scanner resolves
+against the SDK's own `type:Stack`/`type:Recipe`; that is the documented `fits --build
+<other>` false positive (HANDOVER §9d trap 14). They are now `ItemCount` and
+`RecycleRecipe`, both absent from `uses.json`, and `fits --build 0b14f8a` is green.
+
+### Files this slice changed
+
+| Path | What changed |
+|---|---|
+| `src/runtime.rs` | `Tier`, `factory_capacity`, tier-aware `Factory` (Vec progress/cycles), `factory_tick` over slices; `Stack`→`ItemCount`, `Recipe`→`RecycleRecipe`; 10 new tests, the existing ones moved to per-tier energy |
+| `src/recycling_factory.rs` (was `src/basic_recycling_factory.rs`) | one `FactoryPart { tier }`, `grid`/`menu`/`container(tier)`/`battery(tier)`, `read(saved, tier)`, `FactoryPart` tick over `2n` slots, `Sight.capacity`; 6 tests |
+| `src/lib.rs` | `register` loops `Tier::ALL`: block key, container, buffer, entity type and Part per tier |
+| `assets/mekmm/blockstates,models,textures,lang` | three blockstates, three block models, three item models, three tier fronts (+ a green LED on the basic front), six lang entries |
+| `data/mekmm/horizon/{block,creative_tab}`, `data/mekmm/loot_table/blocks`, `data/minecraft/tags/block/mineable` | three blocks, three loot tables, the pickaxe tag and the creative tab extended |
+| `horizon-mod.toml`, `Cargo.toml` | version 0.2.2, pin `0a875da`, the new description |
+| `tools/e2e.sh` | `--offscreen`, per-tier phases, `stand_at`/`menu_slots`, the tier grid assertions, buffer-before-input ordering |
+| `tools/gen_fronts.py` | new: the tier LED generator |
+| `README.md` | rewritten for four tiers |
+| `VALIDATION.md` | the 0.2.2 record |

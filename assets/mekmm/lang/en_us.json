@@ -2,5 +2,11 @@
   "block.mekmm.basic_recycling_factory": "Basic Recycling Factory",
   "item.mekmm.scrap": "Scrap",
   "container.mekmm.basic_recycling_factory": "Basic Recycling Factory",
-  "constants.mekmm.more_machine": "Mekanism:More Machine"
+  "constants.mekmm.more_machine": "Mekanism:More Machine",
+  "block.mekmm.advanced_recycling_factory": "Advanced Recycling Factory",
+  "container.mekmm.advanced_recycling_factory": "Advanced Recycling Factory",
+  "block.mekmm.elite_recycling_factory": "Elite Recycling Factory",
+  "container.mekmm.elite_recycling_factory": "Elite Recycling Factory",
+  "block.mekmm.ultimate_recycling_factory": "Ultimate Recycling Factory",
+  "container.mekmm.ultimate_recycling_factory": "Ultimate Recycling Factory"
 }

@@ -145,3 +145,27 @@ Error semantics read from the cached-recipe base
    Mekanism port records for its machines.
 6. **Loot**: plain self-drop; upstream's `copy_components` of
    `mekanism:energy`/`:items` (machine contents into the item) has no port.
+
+## Slice 2 — the tiers (read for `0.2.2`, tag `v1.4.2-1.21.1`)
+
+The higher-tier numbers and the buffer formula come from these files, added to the list above:
+
+| File | Read for |
+|---|---|
+| `common/util/MoreMachineUtils.java` (`getFactoryTier`) | the registrable tier set: `EnumUtils.FACTORY_TIERS` unless `Mekmm.hooks.evolvedMekanism.isLoaded()`, then `+ MoreMachineEnumUtils.EM_TIERS` |
+| `common/util/MoreMachineEnumUtils.java:50-56` | `EM_TIERS = { EMFactoryTier.OVERCLOCKED, QUANTUM, DENSE, MULTIVERSAL, CREATIVE }`, assigned only inside `if (Mekanism.hooks.evolvedMekanism.isLoaded())` — the five tiers are **not** registered without Evolved Mekanism |
+| Mekanism `common/tier/FactoryTier.java`, `common/util/EnumUtils.java:136` | `BASIC(3), ADVANCED(5), ELITE(7), ULTIMATE(9)`; `FACTORY_TIERS = FactoryTier.values()` |
+| `common/content/blocktype/MoreMachineFactory.java:41-43` (`setMachineData`) | the factory buffer: `new AttributeEnergy(origEnergy::getUsage, () -> MathUtils.clampToLong(Math.max(origEnergy.getConfigStorage() * 0.5, origEnergy.getUsage()) * tier.processes))` |
+| Mekanism `common/block/attribute/AttributeEnergy.java` | `getConfigStorage()` is the machine's configured storage (20,000 for the recycler) and `getUsage()` its 50 FE/t; the two-argument constructor takes usage then storage |
+| `common/config/MoreMachineUsageConfig.java:31`, `MoreMachineStorageConfig.java` | `recycler = 50` FE/t; `recycler = 20_000` FE (the single machine) |
+| `common/registries/MoreMachineBlockTypes.java:43-47` | the single recycler's `.withEnergyConfig(usage.recycler, storage.recycler)` — the numbers the factory scales |
+| `common/registries/MoreMachineBlocks.java:84`, `347` (`getMoreMachineFactory(tier, type)`) | one block and one block entity per (tier, family) |
+| `assets/mekmm/blockstates/<tier>_recycling_factory.json`, `models/block/factory/recycling/{<tier>,active/<tier>}.json` and `base.json` | `facing` × `active`; the model is a `neoforge:composite` of `base` and `mekanism:block/factory/front_led/<tier>` (`front_led/basic.json` … `ultimate.json` use UV rows 0–3 of `mekanism:block/factory/led.png`) |
+| `data/mekmm/loot_table/blocks/<tier>_recycling_factory.json`, `lang/en_us.json` | the self-drop with `copy_components`, and the four tier names |
+
+**Registered set (measured): four tiers.** The five extra blockstates in the jar are
+`blocked(evolvedmekanism-not-ported)`; porting them would need a type this pin does not have.
+
+**The buffer formula is the correction slice 2 makes:** `max(20,000 × 0.5, 50) × processes` is
+30,000 / 50,000 / 70,000 / 90,000 FE, so the basic tier's 20,000 in 0.2.0–0.2.1 was the single
+machine's storage, not the factory's.

@@ -1,15 +1,17 @@
 id = "mekmm"
 name = "Mekanism: MoreMachine"
-version = "0.2.0"
-description = """A port of Mekanism: MoreMachine for Horizon, slice 1: the Basic Recycling Factory. One
-block whose three processes each spend 50 FE/t for 200 ticks out of the one shared 20,000 FE
-buffer, consuming one item at the end of the operation and producing `mekmm:scrap` on the jar's
-17 % chance roll: 9 stones, dirt and grass_block recycle, an input with no recipe or no energy
-burns nothing, and a full output slot holds the progress. The buffer is a real block energy
-capability another mod's cable can fill, and the nine-slot container opens the vanilla 3x3 menu.
-Not yet ported: the other 15 factory families, the eight higher tiers, the chemical families,
-the single machines, the multiblocks, side configuration, upgrades, redstone control and the
-machine's own GUI."""
+version = "0.2.2"
+description = """A port of Mekanism: MoreMachine for Horizon: the recycling factory's four real tiers. Each
+block runs 3, 5, 7 or 9 processes of 200 ticks at 50 FE/t each out of one shared buffer —
+30,000, 50,000, 70,000 and 90,000 FE, upstream's `max(storage * 0.5, usage) * processes` — and each
+process consumes one item at the end of its operation and produces `mekmm:scrap` on the jar's 17 %
+chance roll: 9 stones, dirt and grass_block recycle, an input with no recipe or no energy burns
+nothing, and a full output slot holds the progress. The buffer is a real block energy capability
+another mod's cable can fill, and each container opens the smallest vanilla chest grid that holds
+its slots (3x3, 9x2, 9x2, 9x3). A tick writes only the output slots it changed, and `/mekmm info`
+needs an operator or a player within 8 blocks. Not yet ported: the other 15 factory families, the
+five Evolved Mekanism tiers, the chemical families, the single machines, the multiblocks, side
+configuration, upgrades, redstone control and the machine's own GUI."""
 authors = ["lostmyself8", "AdLf0208"]
 license = "MIT"
 homepage = "https://github.com/lostmyself8/Mekanism-MoreMachine"
@@ -28,5 +30,5 @@ capabilities = ["registries"]
 
 [native]
 game = "26.3"
-horizon = "0b14f8acfd97fa2c750e42795249dcc981178ca4"
+horizon = "0a875da91dbb0fdcb7ba8c42c11341aa229af51a"
 mixins = "e59da9094f0c2fdda6c627fe9eff22dec6a906f0"

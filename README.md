@@ -1,63 +1,52 @@
-# Mekanism:More Machine — a Horizon port
+# Mekanism: MoreMachine for Horizon — the recycling factory's four tiers
 
-**Mekanism:More Machine** is a Minecraft mod. Adds more useful machines to Mekansim. This repository is a **port of it to [Horizon](https://github.com/horizon-rust/horizon)**, the Rust engine for Minecraft Java 26.3. It carries the complete source of the port plus the content files it ships, and installs as a single `.hmod` package.
+A native Horizon mod package (`.hmod`, mod API **0.2**) carrying its own content, for
+Mekanism: MoreMachine (mekmm) 1.4.2 (MIT, `lostmyself8/Mekanism-MoreMachine`, tag
+`v1.4.2-1.21.1`), the exact ATM10 jar `mekmm-1.21.1-1.4.2.jar`, an add-on of Mekanism.
 
-Upstream: [lostmyself8/Mekanism-MoreMachine](https://github.com/lostmyself8/Mekanism-MoreMachine) — licence **MIT**.
+This slice is the **recycling factory family at every tier the mod registers without Evolved
+Mekanism** — `basic`, `advanced`, `elite`, `ultimate`:
 
-| | |
-|---|---|
-| Upstream mod | Mekanism:More Machine ([source](https://github.com/lostmyself8/Mekanism-MoreMachine)) |
-| Ported to | Horizon 0b14f8a, Minecraft Java 26.3, mod API `0.2` |
-| Package | `mekmm.hmod` (install it with the Horizon launcher) |
-| Licence | **MIT** — the upstream mod's licence; see [Licence and credit](#licence-and-credit) |
+| block | processes | buffer | slots (grid) |
+|---|---:|---:|---|
+| `mekmm:basic_recycling_factory` | 3 | 30,000 FE | 9 (3×3) |
+| `mekmm:advanced_recycling_factory` | 5 | 50,000 FE | 18 (9×2) |
+| `mekmm:elite_recycling_factory` | 7 | 70,000 FE | 18 (9×2) |
+| `mekmm:ultimate_recycling_factory` | 9 | 90,000 FE | 27 (9×3) |
 
-## What this port implements
+Every process runs **200 ticks** at **50 FE/t**, so one operation costs **10,000 FE** however
+many run in parallel; the buffer is upstream's
+`max(storage × 0.5, usage) × processes` (`MoreMachineFactory.setMachineData`). Each process has
+one input and one output slot and produces `mekmm:scrap` ×1 on the jar's **17 %** chance roll.
+No energy, no recipe, too few items, a full output slot and a missed roll all behave as
+upstream's `CachedRecipe` does. `/mekmm info` prints a factory's energy, its per-process
+progresses and cycle counters and its working slots; the container opens the smallest vanilla
+chest grid that holds its slots.
 
-- **The embedded-content control leg is gone.** 0.1.0 proved the block came from the bundle's
-- **A non-factory block entity is "No block entity there." by construction** (trap 2), which is
-- **Invalid command input** is answered by the server's dispatcher, not by four hand-written
+One flat package holds both halves: `assets/` and `data/` are the carried blocks, items, models,
+textures, lang, loot tables, tags and creative tab, and `src/` is the Rust — one
+`impl mod_api::Hooks`, one block entity Part per tier and the declarations beside the pure
+runtime. `src/runtime.rs` is the port's logic (the tiers, the factory tick, the roll, the recipe
+table) with its tests; `src/recycling_factory.rs` is the glue.
 
-## Not yet ported
-
-- **The rest of the mod.** The other 15 factory families (144 factory
-- **The chemical system** (Mekanism gases/slurries/pigments) is the parent's
-- **The recycler itself** (`mekmm:recycler`, the single-machine form of this
-- **`mekanism:substrate`** recipe (chance 0.43) is dropped: no such item here.
-- **Redstone control, side config, upgrades, the ejector, the active state**
-- **No in-game run at 0.2.0.** `horizon-launcher` is not installed in this environment, so a
-- **The menu is the vanilla `minecraft:generic_3x3`** (unchanged from 0.1.0): a mod menu type
-- **Invalid-input command text differs** (trap 5).
-
-## Installing
-
-1. Install the [Horizon launcher](https://github.com/horizon-rust/horizon/releases) (0.2.70 or newer).
-2. Add `mekmm.hmod` to the instance's mods.
-3. The package is pinned to a specific Horizon build; the launcher checks that pin.
-
-## Licence and credit
-
-Mekanism:More Machine was created by its upstream authors; the code, models and assets in the original mod
-remain theirs and are used here under **MIT**. The Rust in this repository is a clean-room
-rewrite for Horizon, not a translation of the original source.
-
-- `LICENSE` — the upstream licence text.
-- `LICENSE-NOTICE.md` — what this port carries and where it came from.
-- The upstream project: https://github.com/lostmyself8/Mekanism-MoreMachine
-
-## Technical details
-
-```
-horizon-mod.toml   package manifest (id, version, api, [native] pin)
-Cargo.toml         the crate; depends on `horizon-mod-api` from the fetched SDK
-src/               lib.rs (the one `impl Hooks`), runtime.rs (pure logic + tests), glue
-assets/ data/      the content the package ships
-tools/             content generators and the e2e scenario
+```sh
+# the SDK ladder (inside a ports/tools/build-slot.sh lease; CARGO_INCREMENTAL=0)
+cargo test                                        # 35 tests
+cargo clippy --all-targets -- -D warnings
+cargo fmt --check                                 # not --all: that formats the fetched SDK
+rm -f Cargo.lock && cargo horizon-mod build        # -> target/horizon-mod/mekmm.hmod
+cargo horizon-mod check mekmm.hmod
+cargo horizon-mod fits mekmm.hmod --build 0b14f8a  # a different build: the real comparison
+GAME=<launcher-built client> tools/e2e.sh          # the in-game check (--offscreen)
+SELFTEST=1 GAME=… tools/e2e.sh                     # must exit non-zero
 ```
 
-- Build: `cargo horizon-mod build` (packages; it does not compile against the game).
-- Test: `cargo test`, `cargo clippy --all-targets -- -D warnings`.
-- In-game: `ports/tools/launcher-game.sh run mekmm` in the campaign tree, or install the
-  `.hmod` and play; the harness scenario is `tools/e2e.sh`.
+Read [notes.md](notes.md) for the slice boundary, the deviations, the coverage table and the gap
+list, [FINDINGS.md](FINDINGS.md) for the upstream analysis (where every number came from) and
+[VALIDATION.md](VALIDATION.md) for the ladder evidence.
 
-This repository is generated from the campaign's port at `ports/mekmm/`; the port's own
-`notes.md` is the full record (decisions, traps, evidence).
+## Licence and status
+
+Mekanism: MoreMachine is **MIT** (read from the jar's `META-INF/neoforge.mods.toml`); this port
+is a clean-room Rust rewrite of its behaviour, not a translation. Local-only until the
+maintainer approves publishing.

@@ -3,6 +3,9 @@
   "icon": "mekmm:basic_recycling_factory",
   "items": [
     "mekmm:basic_recycling_factory",
+    "mekmm:advanced_recycling_factory",
+    "mekmm:elite_recycling_factory",
+    "mekmm:ultimate_recycling_factory",
     "mekmm:scrap"
   ]
 }

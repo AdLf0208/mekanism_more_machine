@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,open=false": {
+      "model": "mekmm:block/elite_recycling_factory"
+    },
+    "facing=north,open=true": {
+      "model": "mekmm:block/elite_recycling_factory"
+    },
+    "facing=south,open=false": {
+      "model": "mekmm:block/elite_recycling_factory",
+      "y": 180
+    },
+    "facing=south,open=true": {
+      "model": "mekmm:block/elite_recycling_factory",
+      "y": 180
+    },
+    "facing=east,open=false": {
+      "model": "mekmm:block/elite_recycling_factory",
+      "y": 90
+    },
+    "facing=east,open=true": {
+      "model": "mekmm:block/elite_recycling_factory",
+      "y": 90
+    },
+    "facing=west,open=false": {
+      "model": "mekmm:block/elite_recycling_factory",
+      "y": -90
+    },
+    "facing=west,open=true": {
+      "model": "mekmm:block/elite_recycling_factory",
+      "y": -90
+    }
+  }
+}
